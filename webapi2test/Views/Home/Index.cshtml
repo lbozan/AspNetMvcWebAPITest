@@ -1,0 +1,101 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>Test Developers</h1>
+
+<label>Name</label>
+<input type="text" id="txtName" />
+<label>Email</label>
+<input type="text" id="txtEmail" />
+<input type="submit" value="Add" onclick="profilAdd()" />
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>#-#</th>
+            </tr>
+        </thead>
+        <tbody id="tableList"></tbody>
+    </table>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        var uri = '/api/profilapi/';
+
+        function profilAdd() {
+            var name = document.getElementById("txtName").value;
+            var email = document.getElementById("txtEmail").value;
+            $.ajax({
+                type: 'POST',
+                url: uri + 'Add',
+                data: "{Name:'" + name + "', Email:'" + email + "'}",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (result) {
+                    var satir = '<tr><td>' + result + '</td><td>' + name + '</td><td>' + email
+                        + '</td><td><input type="button" onclick="Del(this,' + result + ')" value="Remove"/> / <input type="button" value="Update" onclick="Upd(this,' + result + ')"></td></tr>';
+                    $('#tableList').append(satir);
+                },
+                error: function () {
+                    console.log("Error");
+                }
+            });
+        }
+
+        function Del(data, Id) {
+
+            $.ajax({
+                type: "GET",
+                url: uri + 'Delete/' + Id,
+                success: function (result) {
+                    console.log(result);
+                },
+                error: function () {
+                    console.log("Error");
+                }
+            });
+            $(data).parent('td').parent('tr').remove();
+
+
+        }
+
+        function Upd(data, Id) {
+            var name = email = "";
+           /* $.ajax({
+                type: "GET",
+                url: uri + "Update/" + Id,
+                success: function (result) {
+                    name = result.Name;
+                    email = result.Email;
+                },
+                error: function () {
+                    console.log("Error");
+                }
+            });*/
+            $(data).parent('td').parent('tr').remove();
+          
+
+            console.log("test");
+        }
+
+        $(document).ready(function () {
+
+
+            $.getJSON(uri + 'All').done(function (data) {
+                $.each(data, function (key, item) {
+                    var satir = '<tr><td>' + item.Id + '</td><td>' + item.Name + '</td><td>' + item.Email
+                        + '</td><td><input type="button" onclick="Del(this,' + item.Id + ')" value="Remove"/> / <input type="button" value="Update" onclick="Upd(this,' + item.Id + ')"></td></tr>';
+                    $('#tableList').append(satir);
+                });
+            });
+
+        });
+    </script>
+}
